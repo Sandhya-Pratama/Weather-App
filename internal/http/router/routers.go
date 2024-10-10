@@ -1,6 +1,9 @@
 package router
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/Sandhya-Pratama/weather-app/internal/http/handler"
+	"github.com/labstack/echo/v4"
+)
 
 type Route struct {
 	Method  string
@@ -8,10 +11,20 @@ type Route struct {
 	Handler echo.HandlerFunc
 }
 
-func PublicRoutes() []*Route  {	
-	return []*Route{}
+func PublicRoutes(userHandler *handler.UserHandler) []*Route  {	
+	return []*Route{
+		{
+		Method: echo.GET,
+		Path: "/users",
+		Handler: userHandler.GetAllUsers,
+		},
+	}
 }
 
 func PrivateRoutes() []*Route  {	
-	return []*Route{}
+	return []*Route{
+		{
+
+		},
+	}
 }
