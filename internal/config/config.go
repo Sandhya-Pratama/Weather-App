@@ -35,4 +35,4 @@ func NewConfig(envPath string) (*Config, error) {
 	}
 
 	return &cfg, nil
-}
+}				
