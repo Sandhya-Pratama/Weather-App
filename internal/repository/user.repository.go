@@ -49,3 +49,11 @@ func (r *UserRepository) Delete(ctx context.Context, id int64) error {
 	}
 	return nil
 }
+
+func (r *UserRepository) FindByID(ctx context.Context, id int64) (*entity.User, error) {
+	user := new(entity.User)
+	if err := r.db.WithContext(ctx).First(&user, id).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
+}

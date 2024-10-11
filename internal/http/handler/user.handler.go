@@ -78,3 +78,17 @@ func (h *UserHandler) DeleteUser(ctx echo.Context) error {
 	}
 	return ctx.NoContent(http.StatusNoContent)
 }
+
+func (h *UserHandler) GetUserByID(ctx echo.Context) error {
+	var input struct {
+		ID int64 `param:"id" validate:"required"`
+	}
+	if err := ctx.Bind(&input); err != nil {
+		return ctx.JSON(http.StatusBadRequest, validator.ValidatorErrors(err))
+	}
+	user, err := h.userService.FindByID(ctx.Request().Context(), input.ID)
+	if err != nil {
+		return ctx.JSON(http.StatusUnprocessableEntity, err)
+	}
+	return ctx.JSON(http.StatusOK, user)
+}
