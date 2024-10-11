@@ -25,3 +25,10 @@ func (r *UserRepository) FindAll(ctx context.Context) ([]*entity.User, error) {
 	}
 	return users, nil
 }
+
+func (r *UserRepository) Create(ctx context.Context, user *entity.User) error{
+	if err := r.db.WithContext(ctx).Create(&user).Error; err != nil{
+		return err
+	}
+	return nil
+}

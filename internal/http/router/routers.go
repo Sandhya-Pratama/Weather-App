@@ -14,9 +14,14 @@ type Route struct {
 func PublicRoutes(userHandler *handler.UserHandler) []*Route  {	
 	return []*Route{
 		{
-		Method: echo.GET,
-		Path: "/users",
-		Handler: userHandler.GetAllUsers,
+			Method: echo.GET,
+			Path: "/users",
+			Handler: userHandler.GetAllUsers,
+		},
+		{
+			Method: echo.POST,
+			Path: "/users",
+			Handler: userHandler.CreateUser,
 		},
 	}
 }
