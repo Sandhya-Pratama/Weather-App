@@ -10,12 +10,14 @@ type UserUseCase interface {
 	FindAll(ctx context.Context) ([]*entity.User, error)
 	Create(ctx context.Context, user *entity.User) error
 	Update(ctx context.Context, user *entity.User) error
+	Delete(ctx context.Context, id int64) error
 }
 
 type UserRepository interface {
 	FindAll(ctx context.Context) ([]*entity.User, error)
 	Create(ctx context.Context, user *entity.User) error
 	Update(ctx context.Context, user *entity.User) error
+	Delete(ctx context.Context, id int64) error
 }
 type UserService struct {
 	repository UserRepository
@@ -35,4 +37,8 @@ func (s *UserService) Create(ctx context.Context, user *entity.User) error {
 
 func (s *UserService) Update(ctx context.Context, user *entity.User) error {
 	return s.repository.Update(ctx, user)
+}
+
+func (s *UserService) Delete(ctx context.Context, id int64) error {
+	return s.repository.Delete(ctx, id)
 }

@@ -17,10 +17,6 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	}
 }
 
-func UpdateUserRepository(db *gorm.DB) *UserRepository {
-	return &UserRepository{db: db}
-}
-
 func (r *UserRepository) FindAll(ctx context.Context) ([]*entity.User, error) {
 	users := make([]*entity.User, 0)
 	err := r.db.WithContext(ctx).Find(&users).Error
@@ -42,6 +38,13 @@ func (r *UserRepository) Update(ctx context.Context, user *entity.User) error {
 		Model(&entity.User{}).
 		Where("id = ?", user.ID).
 		Updates(&user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *UserRepository) Delete(ctx context.Context, id int64) error {
+	if err := r.db.WithContext(ctx).Delete(&entity.User{}, id).Error; err != nil {
 		return err
 	}
 	return nil
