@@ -11,25 +11,28 @@ type Route struct {
 	Handler echo.HandlerFunc
 }
 
-func PublicRoutes(userHandler *handler.UserHandler) []*Route  {	
+func PublicRoutes(userHandler *handler.UserHandler) []*Route {
 	return []*Route{
 		{
-			Method: echo.GET,
-			Path: "/users",
+			Method:  echo.GET,
+			Path:    "/users",
 			Handler: userHandler.GetAllUsers,
 		},
 		{
-			Method: echo.POST,
-			Path: "/users",
+			Method:  echo.POST,
+			Path:    "/users",
 			Handler: userHandler.CreateUser,
+		},
+		{
+			Method:  echo.PUT,
+			Path:    "/users/:id",
+			Handler: userHandler.UpdateUser,
 		},
 	}
 }
 
-func PrivateRoutes() []*Route  {	
+func PrivateRoutes() []*Route {
 	return []*Route{
-		{
-
-		},
+		{},
 	}
 }

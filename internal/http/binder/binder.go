@@ -12,22 +12,24 @@ type Binder struct {
 	*internalValidator.FormValidator
 }
 
-func NewBinder(dbr *echo.DefaultBinder, vdr *internalValidator.FormValidator) *Binder  {
+func NewBinder(
+	dbr *echo.DefaultBinder,
+	vdr *internalValidator.FormValidator) *Binder {
 	return &Binder{dbr, vdr}
 }
-	
 func (b *Binder) Bind(i interface{}, c echo.Context) error {
-	if err := b.defaultBinder.Bind(i, c); err != nil {		
+	if err := b.defaultBinder.Bind(i, c); err != nil {
 		return err
-	} 
-	
+	}
+
 	if err := defaults.Set(i); err != nil {
 		return err
 	}
 
-	if err := c.Validate(i); err !=nil {
+	if err := b.Validate(i); err != nil {
 		errs := err.(validator.ValidationErrors)
 		return errs
 	}
+
 	return nil
 }

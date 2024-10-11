@@ -7,25 +7,25 @@ import (
 )
 
 type User struct {
-	ID       int    		`json:"id"`
-	Name     string 		`json:"name"`
-	CreateAt time.Time 		`json:"created_at"`
-	UpdateAt time.Time 		`json:"update_at"`
-	DeleteAt gorm.DeletedAt `json:"_"`
+	ID        int64          `json:"id"`
+	Name      string         `json:"name"`
+	CreatedAt time.Time      `json:"create_at"`
+	UpdatedAt time.Time      `json:"_"`
+	DeletedAt gorm.DeletedAt `json:"_"`
 }
 
-func NewUser(name string) *User  {
+func NewUser(name string) *User {
 	return &User{
-		Name: name,
-		CreateAt: time.Now(),
-		UpdateAt: time.Now(),
+		Name:      name,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 }
 
-func UpdateUser(id int, name string) *User  {
+func UpdateUser(id int64, name string) *User {
 	return &User{
-		ID: id,
-		Name: name,
-		UpdateAt: time.Now(),
+		ID:        id,
+		Name:      name,
+		UpdatedAt: time.Now(),
 	}
 }

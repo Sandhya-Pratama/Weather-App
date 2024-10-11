@@ -19,7 +19,7 @@ func BuildPublicRoutes(cfg *config.Config, db *gorm.DB) []*router.Route {
 	return router.PublicRoutes(userHandler)
 }
 
-func BuildPrivateRoutes(cfg *config.Config, db *gorm.DB) []*router.Route{
+func BuildPrivateRoutes(cfg *config.Config, db *gorm.DB) []*router.Route {
 
 	return router.PrivateRoutes()
 }
