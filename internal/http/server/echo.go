@@ -4,6 +4,7 @@ import (
 	"github.com/Sandhya-Pratama/weather-app/internal/config"
 	"github.com/Sandhya-Pratama/weather-app/internal/http/binder"
 	"github.com/Sandhya-Pratama/weather-app/internal/http/router"
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -35,11 +36,17 @@ func NewServer(
 	}
 
 	for _, private := range privateRoutes {
-		v1.Add(private.Method, private.Path, private.Handler)
+		v1.Add(private.Method, private.Path, private.Handler, JWTProtected(cfg.JWT.SecretKey))
 	}
 
 	e.GET("/ping", func(c echo.Context) error {
 		return c.String(200, "pong")
 	})
 	return &Server{e}
+}
+
+func JWTProtected(secretKey string) echo.MiddlewareFunc {
+	return echojwt.WithConfig(echojwt.Config{
+		SigningKey: []byte(secretKey),
+	})
 }
