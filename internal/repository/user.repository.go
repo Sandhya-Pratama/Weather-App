@@ -61,8 +61,8 @@ func (r *UserRepository) FindByID(ctx context.Context, id int64) (*entity.User, 
 
 func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*entity.User, error) {
 	user := new(entity.User)
-	if err := r.db.WithContext(ctx).Where("email=?").First(&user).Error; err != nil {
-		return nil, errors.New("User with the email not found")
+	if err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error; err != nil {
+		return nil, errors.New("user with that email not found")
 	}
 	return user, nil
 }

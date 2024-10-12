@@ -10,7 +10,7 @@ type User struct {
 	ID        int64          `json:"id"`
 	Name      string         `json:"name"`
 	Email     string         `json:"email"`
-	Password  string         `json:"password"`
+	Password  string         `json:"_"`
 	CreatedAt time.Time      `json:"create_at"`
 	UpdatedAt time.Time      `json:"_"`
 	DeletedAt gorm.DeletedAt `json:"_"`
