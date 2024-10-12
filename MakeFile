@@ -1,0 +1,6 @@
+Migration install Goose go install github.com/pressly/goose/v3/cmd/goose@latest
+Buat file migration goose -dir db/migrations create create_users_table sql
+
+connect ke database goose -dir db/migrations postgres "user=postgres password=s"password" dbname=nama-database sslmode=disable" status
+
+up migration goose -dir db/migrations postgres "user=postgres password=passwordmu dbname=weather-app sslmode=disable" up

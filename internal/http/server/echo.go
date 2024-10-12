@@ -41,7 +41,7 @@ func NewServer(
 	}
 
 	for _, private := range privateRoutes {
-		v1.Add(private.Method, private.Path, private.Handler, JWTProtected(cfg.JWT.SecretKey))
+		v1.Add(private.Method, private.Path, private.Handler, JWTProtected(cfg.JWT.SecretKey), RBACmiddleware(private.Roles...))
 	}
 
 	e.GET("/ping", func(c echo.Context) error {
@@ -66,6 +66,23 @@ func SessionProtected() echo.MiddlewareFunc {
 			}
 			ctx.Set("user", sess.Values["token"])
 			return next(ctx)
+		}
+	}
+}
+
+func RBACmiddleware(roles ...string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			sess, _ := session.Get("auth-sessions", c)
+			role := sess.Values["role"].(string)
+			for _, v := range roles {
+				if v == role {
+					return next(c)
+				} else {
+					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Unauthorized"})
+				}
+			}
+			return next(c)
 		}
 	}
 }
