@@ -3,9 +3,11 @@ package server
 import (
 	"net/http"
 
+	"github.com/Sandhya-Pratama/weather-app/common"
 	"github.com/Sandhya-Pratama/weather-app/internal/config"
 	"github.com/Sandhya-Pratama/weather-app/internal/http/binder"
 	"github.com/Sandhya-Pratama/weather-app/internal/http/router"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -21,7 +23,6 @@ func NewServer(
 	cfg *config.Config,
 	binder *binder.Binder,
 	publicRoutes, privateRoutes []*router.Route) *Server {
-
 	e := echo.New()
 	e.HideBanner = true
 	e.Binder = binder
@@ -35,28 +36,37 @@ func NewServer(
 
 	v1 := e.Group("/api/v1")
 
-	//bisa dengan e.Get/e.Post, tapi ini cleancodenya supaya tidak satu persatu
 	for _, public := range publicRoutes {
 		v1.Add(public.Method, public.Path, public.Handler)
 	}
 
 	for _, private := range privateRoutes {
-		v1.Add(private.Method, private.Path, private.Handler, JWTProtected(cfg.JWT.SecretKey), RBACmiddleware(private.Roles...))
+		// v1.Add(private.Method, private.Path, private.Handler, JWTProtected(cfg.JWT.SecretKey), SessionProtected())
+		v1.Add(private.Method, private.Path, private.Handler, JWTProtected(cfg.JWT.SecretKey), RBACMiddleware(private.Roles...))
 	}
 
 	e.GET("/ping", func(c echo.Context) error {
 		return c.String(200, "pong")
 	})
+
+	// e.GET("/generate-password/:password", func(c echo.Context) error {
+	// 	password := c.Param("password")
+	// 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	// 	return c.String(200, string(hashedPassword))
+	// })
+
 	return &Server{e}
 }
 
 func JWTProtected(secretKey string) echo.MiddlewareFunc {
 	return echojwt.WithConfig(echojwt.Config{
+		NewClaimsFunc: func(c echo.Context) jwt.Claims {
+			return new(common.JwtCustomClaims)
+		},
 		SigningKey: []byte(secretKey),
 	})
 }
 
-// SessionProtected middleware to protect endpoints with session
 func SessionProtected() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
@@ -70,19 +80,32 @@ func SessionProtected() echo.MiddlewareFunc {
 	}
 }
 
-func RBACmiddleware(roles ...string) echo.MiddlewareFunc {
+func RBACMiddleware(roles ...string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			sess, _ := session.Get("auth-sessions", c)
-			role := sess.Values["role"].(string)
-			for _, v := range roles {
-				if v == role {
-					return next(c)
-				} else {
-					return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Unauthorized"})
-				}
+			user, ok := c.Get("user").(*jwt.Token)
+			if !ok {
+				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "silahkan login terlebih dahulu"})
 			}
+
+			claims := user.Claims.(*common.JwtCustomClaims)
+
+			// Check if the user has the required role
+			if !contains(roles, claims.Role) {
+				return c.JSON(http.StatusForbidden, map[string]string{"error": "anda tidak diperbolehkan untuk mengakses resource ini"})
+			}
+
 			return next(c)
 		}
 	}
+}
+
+// Helper function to check if a string is in a slice of strings
+func contains(slice []string, s string) bool {
+	for _, value := range slice {
+		if value == s {
+			return true
+		}
+	}
+	return false
 }

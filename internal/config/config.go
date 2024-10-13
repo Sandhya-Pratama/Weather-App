@@ -9,17 +9,30 @@ import (
 
 // Config adalah konfigurasi yang digunakan
 type Config struct {
+	Env      string         `env:"ENV" envDefault:"development"`
 	Port     string         `env:"PORT" envDefault:"8080"`
 	Postgres PostgresConfig `envPrefix:"POSTGRES_"`
 	JWT      JwtConfig      `envPrefix:"JWT_"`
 	Session  SessionConfig  `envPrefix:"SESSION_"`
+	Redis    RedisConfig    `envPrefix:"REDIS_"`
+}
+
+//	type MidtransConfig struct {
+//		BaseURL   string `env:"BASE_URL"`
+//		ServerKey string `env:"SERVER_KEY"`
+//		ClientKey string `env:"CLIENT_KEY"`
+//	}
+
+type RedisConfig struct {
+	Host     string `env:"HOST" envDefault:"localhost"`
+	Port     string `env:"PORT" envDefault:"6379"`
+	Password string `env:"PASSWORD" envDefault:""`
 }
 
 // JWT CONFIG
 type JwtConfig struct {
-	SecretKey string `env:SECRET_KEY"`
+	SecretKey string `env:"SECRET_KEY"`
 }
-
 type SessionConfig struct {
 	SecretKey string `env:"SECRET_KEY"`
 }

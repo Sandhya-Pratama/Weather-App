@@ -14,6 +14,7 @@ import (
 	"github.com/Sandhya-Pratama/weather-app/internal/http/binder"
 	"github.com/Sandhya-Pratama/weather-app/internal/http/server"
 	"github.com/Sandhya-Pratama/weather-app/internal/http/validator"
+	"github.com/go-redis/redis/v8"
 	"github.com/labstack/echo/v4"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -29,8 +30,10 @@ func main() {
 	db, err := buildGormDB(cfg.Postgres)
 	cekError(err)
 
-	publicRoutes := builder.BuildPublicRoutes(cfg, db)
-	privateRoutes := builder.BuildPrivateRoutes(cfg, db)
+	redisClient := buildRedis(cfg)
+
+	publicRoutes := builder.BuildPublicRoutes(cfg, db, redisClient)
+	privateRoutes := builder.BuildPrivateRoutes(cfg, db, redisClient)
 
 	echoBinder := &echo.DefaultBinder{}
 	formValidator := validator.NewFormValidator()
@@ -55,6 +58,15 @@ func main() {
 	// 	fmt.Println(v)
 	// }
 
+}
+
+func buildRedis(cfg *config.Config) *redis.Client {
+	client := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", cfg.Redis.Host, cfg.Redis.Port),
+		Password: cfg.Redis.Password,
+		DB:       0,
+	})
+	return client
 }
 
 func runServer(srv *server.Server, port string) {
@@ -92,12 +104,6 @@ func buildGormDB(cfg config.PostgresConfig) (*gorm.DB, error) {
 	return db, nil
 }
 
-func cekError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 func splash() {
 	colorReset := "\033[32m"
 	splashText := `__      __               __  .__                              _____ ____________________ 
@@ -107,4 +113,10 @@ func splash() {
   \__/\  /  \___  >____  /__| |___|  /\___  >__|            \____|__  /____|    |____|    
        \/       \/     \/          \/     \/                        \/                    `
 	fmt.Println(colorReset, strings.TrimSpace(splashText))
+}
+
+func cekError(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

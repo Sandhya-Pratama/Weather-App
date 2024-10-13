@@ -62,5 +62,6 @@ func (h *AuthHandler) Login(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusUnprocessableEntity, err)
 	}
+
 	return ctx.JSON(http.StatusOK, data)
 }
